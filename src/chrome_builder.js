@@ -8,6 +8,7 @@ const path = require('path');
 const rimraf = require('rimraf');
 const {spawn} = require('child_process');
 const crypto = require('crypto');
+const os = require('os');
 
 /**
  * Chrome builder class.
@@ -105,7 +106,7 @@ class ChromeBuilder {
     this.conf_.logger.info('Action sync');
 
     await this.childCommand('git', ['pull', '--rebase']);
-    await this.childCommand('gclient', ['sync']);
+    await this.childCommand(os.platform() == 'win32' ? 'gclient.bat' : 'gclient', ['sync']);
 
     if (!this.childResult_.success) {
       await this.uploadLogfile();
