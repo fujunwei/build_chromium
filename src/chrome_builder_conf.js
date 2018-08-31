@@ -221,7 +221,7 @@ class ChromeBuilderConf {
       case 'win':
         spawnSync('ninja',
                   ['-C', this.outDir, 'mini_installer'], {cwd: this.rootDir});
-        return path.join(this.outDir, "mini_installer.exe");
+        return path.join(this.outDir, "chrome.7z");
       default:
         return null;
     }
