@@ -174,6 +174,17 @@ class ChromeBuilder {
       return;
     }
 
+    // Extract chrome.7z.
+    let lzma_exec = path.join(this.conf_.rootDir, "third_party",
+                         "lzma_sdk", "Executable", "7za.exe");
+    this.conf_.logger_.info('lzma dir: ' + lzma_exec);
+    await this.childCommand(lzma_exec, ['x', '-y', '-sdel', this.conf_.packagedFile]);
+    // Zip files
+    let zip_bat_dir = path.join(process.env.AppData, "npm",
+                         "node_modules", "build_chromium", "src");
+    this.conf_.logger_.info(zip_bat_dir);
+    await this.childCommand(path.join(zip_bat_dir, "make_win32_zip.bat"),
+        [this.conf_.rootDir, zip_bat_dir]);
     try {
       fs.accessSync(this.conf_.packagedFile);
     } catch (e) {
@@ -224,10 +235,12 @@ class ChromeBuilder {
     }
     this.remoteDir_ += success ? '_SUCCEED': '_FAILED';
     this.remoteSshDir_ = this.remoteSshHost_ + ':' + this.remoteDir_ + '/';
+    let dir = "";
     if (os.platform() == 'win32')
-      this.remoteDir_.replace(/\\/, "/");
+      dir = this.remoteDir_.split(path.sep).join('/');
+    this.conf_.logger.info(`HEAD is at ${dir}`);
 
-    await this.childCommand('ssh', [this.remoteSshHost_, 'mkdir', '-p', this.remoteDir_]);
+    await this.childCommand('ssh', [this.remoteSshHost_, 'mkdir', '-p', dir]);
   }
 
   /**
